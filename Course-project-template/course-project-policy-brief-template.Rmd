@@ -1,0 +1,63 @@
+---
+main_findings: "Policy Brief Title"
+main_textcol: "#ffffff"
+column_numbers: 2
+output: 
+  posterdown::posterdown_betterport:
+    self_contained: true
+poster_height: "11in"
+poster_width: "8.5in"
+body_textsize: "14px"
+main_textsize: "54px"
+sectitle_textsize: "16px"
+primary_colour: "#3182bd"
+secondary_colour:	"#3182bd"
+knit: pagedown::chrome_print
+---
+
+```{r setup, include=FALSE}
+#| echo: false
+#| results: false
+#| warning: false
+#| error: false
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  out.width = "90%",
+  out.height = "110%",
+  dpi = 400)
+
+source(file = "project-code.R")
+```
+
+## Background or introduction to the policy topic
+
+[bullet points about the problem the policy addresses]
+
+```{r}
+# figure(s) demonstrating data to help tell the story
+# can be one of your poster figures or something new
+# try making a map if it is relevant to your topic
+```
+
+## Evidence about the policy topic
+
+[bullet points with statistics from your analyses]
+
+```{r}
+# figure(s) demonstrating data to help tell the story
+# can be one of your poster figures or something new
+# try making a map if it is relevant to your topic
+```
+
+## What Can We Do? 
+
+[what does the evidence presented suggest could be done]
+
+## Contact Info & Sources
+
+* Contact Me: 
+  + your email address
+  
+* Sources:
+  + add sources of data used and any references
