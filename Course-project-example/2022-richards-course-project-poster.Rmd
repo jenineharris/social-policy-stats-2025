@@ -1,0 +1,172 @@
+---
+title: Motivations and Barriers to Vaccination during Covid-19
+author:
+  - name: Megan Richard
+    affil: 1
+    orcid: '0000-0000-0000-0000'
+affiliation:
+  - num: 1
+    address: Brown School, Washington University in St. Louis
+column_numbers: 4
+output: 
+  posterdown::posterdown_html:
+    self_contained: true
+poster_height: "36in"
+poster_width: "48in"
+body_textsize: "36px"
+sectitle_textsize: "48px"
+primary_colour: "#a51417"
+bibliography: references.bib
+knit: pagedown::chrome_print
+---
+
+```{r setup, include=FALSE}
+#| echo: false
+#| results: false
+#| warning: false
+#| error: false
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  out.width = "90%",
+  out.height = "110%",
+  dpi = 400)
+
+source(file = "richards-course-project-code.R")
+```
+
+```{css, echo=FALSE}
+table.Rtable1 {
+    font-family: "Times New Roman", serif;
+    border-collapse: collapse;
+    font-size: 28pt;
+    margin-left: auto;
+    margin-right: auto
+}
+```
+
+# Research Purpose
+
+-   This research seeks to answer the following question: Are age, political beliefs, and prior flu shot associated with the intention to get the COVID-19 vaccine for adults in the United States?
+
+# Data Description
+
+-   Data were collected in October 2020 through a Google Survey disseminated on social media
+
+-   Survey questions were chosen by evaluating existing literature [@rasul2023; @ruiz2021; @albrecht2022]
+
+-   After removing observations missing data on the 4 relevant variables, 4 variables and 511 observations will be examined for this project
+
+-   The codebook can be downloaded from [this link](https://github.com/OxCGRT/covid-policy-tracker/blob/master/documentation/codebook.md)
+
+# Variable Measurement
+
+Outcome:
+
+-   Intention to get the COVID-19 vaccine (categorical): Yes, No, Don't Know/Not Sure
+
+Predictors:
+
+-   Political beliefs (categorical): Very Liberal, Somewhat Liberal, Mixed, Somewhat Conservative, Very Conservative
+
+-   Flu shot in the past 12 months (categorical); Yes, No
+
+-   Age in years (continuous)
+
+# Participant Characteristics
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# print table
+table1
+
+
+```
+
+-   Nearly half of participants intended to get the covid vaccine (47.5%; n = 242)
+
+-   Most survey participants had received a flu shot in the past year (64.6%; n = 330)
+
+-   Most participants were somewhat or very liberal (55.3%; n = 282)
+
+-   The median age of participants was 26 years old (IQR = 25)
+
+# Vaccine Intention and Flu Shot History
+
+-   Figure 1 shows a higher percentage of people who intend to get the COVID-19 vaccine have had the flu shot and the opposite is true for those not intending to get the COVID-19 vaccine
+
+    -   Of those who intend to get the COVID-19 vaccine, 79.3% of them had a flu shot in the last year and 20.7% did not have a flu shot
+
+    -   Of those who do not intend to get the COVID-19 vaccine, only 37.5% of them had a recent flu shot and 62.5% did not have a flu shot
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+figure1
+```
+
+
+
+-   Flu shot history and vaccine intention are both categorical so I used chi-squared to determine whether they were statistically significantly associated
+
+    -   All chi-squared assumptions were met including independent observations, both variables were nominal or ordinal, and more than 80% of expected values were greater than 5
+
+-   There is a statistically significant association between vaccine intention and flu shot history ($\chi^2$ = 56.35; p \< .05)
+
+-   Standardized residuals showed which groups were driving the statistically significant result
+
+    -   Significantly **fewer than expected** people who had a flu shot did not intend to take the COVID-19 vaccine (std res = -3.30) and **more than expected** who had a flu shot intended to take the vaccine (std res = 2.87)
+
+    -   Significantly **more than expected** people with no flu shot did not intend to take the COVID-19 vaccine (std res = 4.44) and **fewer than expected** with no flu shot intended to take the vaccine (std res = -3.87)
+
+# Vaccine Intention and Political Beliefs
+
+-   Figure 3 suggests that political beliefs may be associated with intention to get the COVID-19 vaccine
+
+    -   Of those who intend to get the COVID-19 vaccine, 50% were very liberal and 24.8% were somewhat liberal
+
+    -   Of those who do not intend to get the COVID-19 vaccine, 32.3% were politically mixed and 21.9% were somewhat conservative
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.height=7}
+figure3
+```
+
+-   Political beliefs and vaccine intention are both categorical so I used chi-squared to determine whether they were statistically significantly associated
+
+    -   All chi-squared assumptions were met including independent observations, both variables were nominal or ordinal, and more than 80% of expected values are greater than 5
+
+-   I found a statistically significant association between vaccine intention and political beliefs ($\chi^2$ = 142.55; p \< .05).
+
+-   Standardized residuals showed which groups were driving the statistically significant result
+
+    -   Significantly **more very liberal people than expected were intending to take the COVID-19 vaccine** (std res = 4.83) while **significantly fewer than expected** who preferred not to answer, were politically mixed, or were somewhat conservative were intending to take the vaccine (std res \< -2)
+
+    -   Significantly **more than expected** people who preferred not to answer, were politically mixed, or were very conservative were not intending to take the COVID-19 vaccine (std res \> 2) while **significantly fewer than expected** who were very liberal or somewhat liberal were intending to not take the vaccine (std res \< -2)
+
+# Vaccine Intention and Age
+
+-   The median age is highest in the "No" vaccine intention group (median = 39.5, IQR = 23.8--50.0) and lowest in the "Yes" vaccine intention group (median = 24.0, IQR = 22.0--41.8)
+
+-   The large difference suggests that age is likely associated with vaccine intention and that there are more older participants who do not intend to get the COVID-19 vaccine
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+figure4
+```
+
+-   The ANOVA assumption of normal distribution within groups was not met with the distribution of age being very right skewed in the group who intended to get the COVID-19 vaccine
+
+-   Age is continuous and vaccine intention is categorical with 3 categories so I used the Kruskal-Wallis test to test whether the distribution of ranked age was the same across vaccine intention groups
+
+-   There was a statistically significant difference in age distribution across the vaccine intention groups (KW $\chi^2$ = 11.63; p = .003)
+
+-   A post-hoc Dunn's test can determine which groups are statistically significantly different from each other
+
+    -   The mean age of the group with no intention to vaccinate for COVID-19 was statistically significantly higher (diff = 3.35 years) compared to the group that intended to vaccinate for COVID-19 (p = .001)
+
+# Summary and Recommendations
+
+Age, having a recent flu vaccine, and political beliefs were all statistically significantly associated with intent to get a COVID-19 vaccination. Consistent with prior studies, I found that people who had a flu vaccination in the last year, had more liberal political beliefs, and were younger were more likely to intend to get the COVID-19 vaccine [@rasul2023; @ruiz2021; @albrecht2022].
+
+Increasing the uptake of flu vaccination and developing health communication campaigns that reach older and more conservative audiences could both increase the uptake of COVID-19 vaccination.
+
+# References
+
+::: {#refs}
+:::

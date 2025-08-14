@@ -1,0 +1,71 @@
+---
+main_findings: "Increase Flu and COVID-19 Vaccination"
+main_textcol: "#ffffff"
+column_numbers: 2
+output: 
+  posterdown::posterdown_betterport:
+    self_contained: true
+poster_height: "11in"
+poster_width: "8.5in"
+body_textsize: "14px"
+main_textsize: "54px"
+sectitle_textsize: "16px"
+primary_colour: "#3182bd"
+secondary_colour:	"#3182bd"
+bibliography: references.bib
+knit: pagedown::chrome_print
+---
+
+```{r setup, include=FALSE}
+#| echo: false
+#| results: false
+#| warning: false
+#| error: false
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  out.width = "90%",
+  out.height = "110%",
+  dpi = 400)
+
+source(file = "richards-course-project-code.R")
+```
+
+## Flu & COVID-19 Vaccination Intention
+
+* Flu and COVID-19 vaccines are effective against serious disease and reduce transmission. 
+
+* Fewer people intend to get vaccinated against COVID-19 compared to flu.
+
+* Older people are less likely to intend to get a COVID-19 vaccine.
+
+* More conservative people are less likely to intend to get a COVID-19 vaccine.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+vaxMapFlu
+intentionMapCovid
+```
+
+## More Flu Vaccination -> More Covid Vaccination
+
+* **89%** of people who had the flu shot intended to get the COVID-19 vaccine.
+
+```{r}
+waffleplot
+```
+
+## What Can We Do? 
+
+* Increasing the uptake of flu vaccination and developing health communication campaigns that reach older and more conservative audiences could increase the uptake of COVID-19 vaccination.
+
+## Contact Info & Sources
+
+* Contact Me: 
+  + Megan Richard at megan.r\@wustl.edu
+  
+* Sources:
+  + CDC COVID Data Tracker and FluVaxView
+  + Research Project: *Motivations and Barriers to Vaccination during Covid-19.*
+  + Albrecht, 2022. *Vaccination, Politics and COVID-19 Impacts.*
+  + Rasul and Saifuddin, 2023. *Not All Conservatives Are Vaccine Hesitant.*
+  + Ruiz and Bell, 2021. *Predictors of Intention to Vaccinate Against COVID-19.*
