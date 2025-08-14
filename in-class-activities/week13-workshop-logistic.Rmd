@@ -1,0 +1,122 @@
+---
+title: 'Explaining or predicting zombie status'
+author: 'Jenine Harris'
+output: html_document
+---
+
+## Project purpose
+
+The purpose of this project is to determine whether age, gender, and rurality help to predict zombie status with the data from weeks 7 and 8. The data are from an observational study of a random sample of 200 citizens where the data were collected by the Centers for Zombie Control and Prevention just after the spread of zombies began in the US in mid-2015. The outcome of interest, zombie status, was measured as a categorical variable in two categories: zombies and non-zombies. The age variable was measured as a continuous variable in years. Sex or gender was measured as male or female, and rurality was measured as rural, suburban, or urban depending on the location of the residence of each person in the sample. 
+
+## Exploratory data analysis 
+
+```{r dataPackages, echo=FALSE, include = FALSE, message=FALSE, warning = FALSE}
+# import data
+zombies <- read.csv("http://tinyurl.com/fobzombies")
+
+# open packages needed for project
+library(package = "tidyverse")
+library(package = "tableone")
+library(package = "odds.n.ends")
+```
+
+```{r selectVars, echo=FALSE, include = FALSE, message=FALSE, warning = FALSE}
+# select variables of interest and clean data
+zombies <- zombies %>% 
+  select(zombie, gender, rurality, age) %>% 
+  mutate(zombie = recode_factor(.x = zombie,
+                                '0' = "Not zombie",
+                                '1' = "Zombie")) %>% 
+  mutate(gender = as.factor(gender)) %>% 
+  mutate(rurality = as.factor(rurality)) %>% 
+  mutate(age = as.numeric(age)) 
+```
+
+```{r distAge, include = FALSE}
+# check the distribution of age to see if normal
+hist(zombies$age)
+# not normal, use median/IQR for descriptive stats
+```
+
+The sample included 79 zombies and 121 non-zombies (Table 1). Zombies were older with a median age of 51 years old (IQR: 42 -- 65), while non-zombies had a median age of 36 years old (IQR: 27 -- 48). Zombies were most likely to live in urban areas (n = 38; 48.1%) while non-zombies were most likely to live in rural areas (n = 80; 66.1%). More zombies were male (n = 42; 53.2%) than female (n = 37; 46.8%).
+
+**Table 1. Observed characteristics of 200 citizens during the 2015 zombie event.**
+
+```{r table1, echo=FALSE, message=FALSE, warning = FALSE}
+# Make a table of descriptive stats by zombie status
+table1 <- CreateTableOne(data = zombies, 
+                         strata = 'zombie',
+                         vars = c('age', 'rurality', 'gender'))
+print(table1, showAllLevels = TRUE, nonnormal = 'age')
+```
+
+There were statistically significant relationships between rurality and zombie status (p < .001) and also between median age and zombie status (p < .001), but gender was not statistically significantly related to zombie status (p = .64). Figure 1 examines the significant relationship between rurality and zombie status visually, confirming that zombies are much more likely to live in urban areas compare to non-zombies, while non-zombies are much more likely to live in rural areas compared to zombies. Figure 2 demonstrates the large difference in median age for zombies and non-zombies.
+
+**Figure 1. Examining the distribution of zombies and non-zombies in urban and rural areas in 2015 (n = 200).**
+
+```{r figure1, echo = FALSE, warning=FALSE, message=FALSE}
+# rural & zombie status (see page 289)
+zombies %>% 
+  group_by(rurality, zombie) %>% 
+  count() %>% 
+  group_by(rurality) %>% 
+  mutate(perc.rurality = 100*n/sum(n)) %>% 
+  ggplot(aes(x = rurality, y = perc.rurality, fill = zombie)) +
+  geom_col(position = "dodge") +
+  theme_minimal() +
+  scale_fill_brewer(palette = 'Paired') +
+  labs(y = "Percent of zombies within rurality group",
+       x = "Rurality")
+```
+
+**Figure 2. Examining the distribution of age in years for 200 zombies and non-zombies in 2015.**
+
+```{r figure2, echo = FALSE, warning=FALSE, message=FALSE}
+# age & zombie status (see page 346)
+zombies %>% 
+  ggplot(aes(x = age, fill = zombie)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(x = "Age in years") +
+  scale_fill_brewer(palette = 'Paired') +
+  coord_flip() 
+  
+```
+
+## Predicting zombie status 
+
+```{r predictZombie, echo = FALSE, include = FALSE, warning = FALSE, message=FALSE}
+# the logistic model predicting zombie by age
+# gender and rurality
+zombieModel <- glm(formula = zombie ~ age + gender + rurality,
+                   data = zombies,
+                   family = binomial("logit"))
+odds.n.ends(zombieModel)
+```
+
+```{r assumptCheck, echo = FALSE, include = FALSE, warning = FALSE, message=FALSE}
+# testing assumptions 
+# linearity
+logit.zombie <- log(x = zombieModel$fitted.values/(1 - zombieModel$fitted.values))
+linearity.data <- data.frame(logit.zombie, age = zombieModel$model$age)
+
+linearity.data %>% 
+  ggplot(aes(x = age, y = logit.zombie)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  geom_smooth(method = "lm", se = FALSE, color = "deeppink")
+# loess curve is very close to linear, assumption looks met!
+
+# multicollinearity
+car::vif(mod = zombieModel)
+# gvifs are very low, assumption is met
+
+# all assumptions met
+```
+
+A logistic regression model including age, gender, and rurality as predictors of being a zombie was statistically significantly better than the baseline at explaining zombie status [$\chi^2$(4) = 66.67; p < .05]. The model correctly predicted 48 of the 79 zombies (60.8% correct) and correctly predicted 100 of the 121 non-zombies (82.6% correct) for a Count-R-squared of .74 or 74% correctly predicted. The model met the assumptions of linearity and no multicollinearity and so the results can be generalized to the population. Age and rurality were statistically significant predictors of zombie status, while gender was not significantly associated with zombie status. Specifically, for every year older, the odds of being a zombie increased by 4.9% (OR = 1.049; 95% CI: 1.028 - 1.072). Compared to rural residents, suburban residents had 3.92 times higher odds of being a zombie (OR =3.92; 95% CI: 1.74 - 9.03) and urban residents had 12.53 times higher odds of being a zombie (OR = 12.53; 95% CI: 5.51 - 30.49).
+
+This research has implications for protecting the non-zombies to stop the spread. All non-infected individuals should move away from urban centers as soon as possible. Older citizens should be especially vigilant since they are at higher risk for a zombie infection. 
+
+
+

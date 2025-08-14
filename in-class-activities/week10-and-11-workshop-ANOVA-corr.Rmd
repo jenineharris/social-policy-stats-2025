@@ -1,0 +1,473 @@
+---
+title: "Ghosts, Goblins, and Ghouls!"
+author: "Jenine Harris"
+output: html_document
+---
+
+## Scenario
+
+After what you heard this Halloween, you know next Halloween evening to expect a large group of ghosts, goblins, and ghouls to be roaming your neighborhood. You know from prior evidence that it is safe to be outside around ghouls and goblins but that ghosts are not great at interacting with humans and should be avoided if possible. Unfortunately you do not know how to tell the three creatures apart. Your neighbor works in public health and mentions that she has some data on a sample of creatures from the Centers for Safe Interaction with Creatures (CSI-Creatures). A CSI-Creatures study measured several variables that might be useful for better understanding differences in creature characteristics so that you can monitor your neighborhood and help your neighbors decide whether and when to leave the house on Halloween. Your neighbor shares the codebook with you:
+
+* *id*: The identification number of the creature in question
+* *bone_length*: Average length of the bones in the creature, normalized to 0 - 1
+* *rotting_flesh*: Percentage of flesh on the creature that is rotting
+* *hair_length*: Average length of the hair on the creature, normalized from 0 - 1
+* *has_soul*: The percentage of a soul present in the creature
+* *color*: The color of the creature
+* *type*: The category of the creature (i.e. ghoul, goblin, or ghost)
+
+## Import the data
+
+* Data are from Kaggle machine learning competition (https://www.kaggle.com/c/ghouls-goblins-and-ghosts-boo/data).
+
+```{r importDataOpenPackages}
+# get csv from google drive
+creature <- read.csv("https://tinyurl.com/ghosts-ghouls")
+
+# before opening packages make sure tidyverse and gghalves are installed
+# open packages
+library(package = "tidyverse")
+library(package = "gghalves")
+
+# clean data
+creature.clean <- creature %>% 
+  mutate(color = as.factor(color)) %>% 
+  mutate(type = as.factor(type))
+```
+
+## Analysis of Variance (ANOVA)
+
+(1) ANOVA is used to ... (PAGE: 381) 
+
+(2) The variable/data type requirements for ANOVA are ... 
+
+(3) The assumptions of ANOVA are:  (PAGE: 418)
+
+
+    
+## Research question: Does hair length (continuous) vary by creature type (categorical with 3 categories)?
+
+(4) H0: 
+
+(5) HA: 
+
+### Exploratory analysis 
+
+```{r exploratoryAnalysis}
+# Exploring with visual before ANOVA (page 391)
+creature.clean %>% 
+  ggplot(aes(x = hair_length, y = type)) +
+  geom_jitter(aes(color = type), alpha = .8) +
+  geom_boxplot(aes(fill = type), alpha = .4) +
+  scale_fill_brewer(palette = "Dark2", guide = "none") +
+  scale_color_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal()+
+  labs(y = "Creature type", 
+       x = "Hair length")
+
+# another way to visualize with half-geoms
+# rain cloud plot
+creature.clean %>% 
+  ggplot(aes(y = hair_length, x = type)) +
+  geom_half_violin(aes(fill = type), alpha = .4, side = "r") +
+  geom_half_point(aes(color = type), alpha = .8, side = "l") +
+  #geom_half_boxplot(aes(fill = type), alpha = .4, side = "r") +
+  scale_fill_brewer(palette = "Dark2", guide = "none") +
+  scale_color_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal()+
+  labs(x = "Creature type", 
+       y = "Hair length") +
+  coord_flip()
+
+```
+
+(6) Interpret the graphs: 
+
+```{r descriptiveStats}
+# Exploratory analysis before ANOVA (page 390)
+creature.clean %>% 
+  group_by(type) %>% 
+  summarize(m.hair.length = mean(x = hair_length),
+            sd.hair.length = sd(x = hair_length))
+```
+
+(7) Interpret the descriptive statistics: 
+
+
+(8) Make a prediction:
+
+
+### ANOVA (usually check assumptions first to pick appropriate test)
+
+```{r anovaHairLengthByType}
+# hair length by creature type (page 393)
+oneway.test(formula = hair_length ~ type,
+            data = creature.clean,
+            var.equal = TRUE)
+```
+
+(9) Results/Interpretation: 
+
+
+### Post-hoc testing
+
+```{r tukeyHairByType}
+# post-hoc test for hair length by creature type (page 400)
+TukeyHSD(x = aov(formula = hair_length ~ type,
+                 data = creature.clean))
+```
+
+(10) Interpretation: 
+
+
+### Assumption checking
+
+```{r normalityHairLengthType}
+# normality assumption (page 418)
+creature.clean %>% 
+  ggplot(aes(x = hair_length)) +
+  geom_density(aes(fill = type)) +
+  facet_wrap(facets = vars(type), nrow = 2) +
+  scale_fill_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal()+
+  labs(x = "Creature type", 
+       y = "Hair length")
+```
+
+
+
+```{r homogVarsHairByType}
+# homogeneity of variances assumption (page 420)
+# H0: Variances are equal (meets assumption) <- p = .12
+# HA: Variances are not equal (not met assumption)
+car::leveneTest(y = hair_length ~ type, 
+                data = creature.clean,
+                center = mean)
+```
+
+
+
+(11) Interpret assumption checking results (remember to mention all assumptions):
+
+
+
+(12) What would you do next? (p 430)
+
+
+H0: 
+HA: 
+
+```{r kruskalHairByType}
+# alternative to anova because failed normality
+kruskal.test(formula = hair_length ~ type,
+             data = creature.clean)
+```
+
+
+```{r dynnsHairByType}
+# Dunn's post-hoc test to find which 
+# groups are significantly different from each other
+# install dunn.test (page 430)
+dunn.test::dunn.test(x = creature.clean$hair_length,
+                     g = creature.clean$type,
+                     method = "bonferroni")
+```
+
+
+
+(13) Summarize the overall results
+
+
+
+
+## Research question: Does amount of rotting flesh vary by creature type?
+
+(14) H0: 
+
+(15) HA: 
+
+### Exploratory analysis 
+
+```{r exploreRottingByType}
+# Exploratory analysis before ANOVA (page 390)
+creature.clean %>% 
+  group_by(type) %>% 
+  summarize(m.rotting.flesh = mean(x = rotting_flesh),
+            sd.rotting.flesh = sd(x = rotting_flesh))
+```
+
+```{r GraphRottingByType}
+# Exploring with visual before ANOVA (page 391)
+creature.clean %>% 
+  ggplot(aes(x = rotting_flesh, y = type)) +
+  geom_jitter(aes(color = type), alpha = .8) +
+  geom_boxplot(aes(fill = type), alpha = .4) +
+  scale_fill_brewer(palette = "Dark2", guide = "none") +
+  scale_color_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal()+
+  labs(y = "Creature type", 
+       x = "Rotting flesh")
+
+# another way to visualize with half-geoms
+#rain cloud plot
+creature.clean %>% 
+  ggplot(aes(y = rotting_flesh, x = type)) +
+  geom_half_violin(aes(fill = type), alpha = .4, side = "r") +
+  geom_half_point(aes(color = type), alpha = .8, side = "l") +
+  #geom_half_boxplot(aes(fill = type), alpha = .4, side = "r") +
+  scale_fill_brewer(palette = "Dark2", guide = "none") +
+  scale_color_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal()+
+  labs(x = "Creature type", 
+       y = "Rotting flesh") +
+  coord_flip()
+
+```
+
+(16) Prediction:
+
+### Assumption checking
+
+```{r normAssumptRottingByType}
+# normality assumption (page 418)
+creature.clean %>% 
+  ggplot(aes(x = rotting_flesh)) +
+  geom_density(aes(fill = type)) +
+  facet_wrap(facets = vars(type), nrow = 2) +
+  scale_fill_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal()+
+  labs(x = "Creature type", 
+       y = "Amount of soul")
+```
+
+```{r HomogVarRottingByType}
+# homogeneity of variances assumption (page 420)
+car::leveneTest(y = rotting_flesh ~ type, 
+                data = creature.clean,
+                center = mean)
+```
+
+(17) Interpret assumption checking results (remember to mention all assumptions):
+
+### Conduct ANOVA or other appropriate test
+
+```{r testRottingByType}
+# rotting flesh by creature type 
+
+```
+
+(18) Results/Interpretation: 
+
+### If test is significant, conduct post-hoc testing
+
+```{r posthocRottingByType}
+# post-hoc test for rotting flesh by creature
+
+```
+
+(19) Interpretation: 
+
+ 
+
+(20) Summarize the overall results:
+
+
+
+
+## Scenario Part Deux
+
+Now that you have a couple of pieces of information to help you and your neighbors identify ghosts, you are curious as to whether these characteristics are related to how much of a soul the creatures have. You have wondered in the past whether all the visible characteristics of ghosts, ghouls, and goblins have some relationship to the amount of soul. 
+
+## Correlation analysis 
+
+(21) Correlation analysis is used to used to examine the relationship between two continuous variable (PAGE: 455) 
+
+(22) The variable/data types for correlation are numeric data type in R for continuous variables 
+
+(23) The assumptions of Pearson's r correlation are... (PAGE: 484)
+
+    + continuous variables
+    + independent observations
+    + both variables are normally distributed
+    + linear relationship between two variables
+    + variance is constant with points evenly distributed around the line (homoscadasticity)
+
+## Research question: Are soul and hair length related?
+
+(24) H0: 
+
+(25) HA:
+
+### Exploratory data analysis
+
+```{r scatterHairBySoul, message = FALSE}
+# Exploring with visual before correlation (page 469)
+creature.clean %>% 
+  ggplot(aes(y = hair_length, x = has_soul)) +
+  geom_point(size = 2, alpha = .6, color = "#DD571C") +
+  geom_smooth(method = "lm", se = FALSE, color = "#9C51B6") +
+  theme_minimal() +
+  labs(x = "Percent of soul", 
+       y = "Hair length")
+
+```
+
+(26) Prediction: 
+
+### Correlation analysis
+
+```{r corrTestHairBySoul}
+# soul by hair length (page 477)
+cor.test(x = creature.clean$has_soul,
+         y = creature.clean$hair_length)
+```
+
+(27) Interpretation: 
+
+### Assumption checking
+
+```{r normalityHairBySoul, message = FALSE}
+# normality assumption (page 486)
+(soul_perc <- creature.clean %>% 
+  ggplot(aes(x = has_soul)) +
+  geom_histogram(fill = "#DD571C", alpha = .6) +
+  theme_minimal() +
+  labs(x = "Has soul"))
+
+(hair.length <- creature.clean %>% 
+  ggplot(aes(x = hair_length)) +
+  geom_histogram(fill = "#9C51B6", alpha = .6) +
+  theme_minimal() +
+  labs(x = "Hair length"))
+
+gridExtra::grid.arrange(soul_perc, hair.length, ncol = 2)
+```
+
+
+
+```{r linearityHairBySoul, message = FALSE}
+# Linearity (page 489)
+creature.clean %>% 
+  ggplot(aes(y = hair_length, x = has_soul)) +
+  geom_point(size = 2, alpha = .6, color = "#DD571C") +
+  geom_smooth(method = "lm", se = FALSE, color = "#9C51B6") +
+  geom_smooth(se = FALSE) +
+  theme_minimal() +
+  labs(x = "Has soul", 
+       y = "Hair length")
+```
+
+
+
+```{r homoscHairBySoul}
+# homoscedasticity assumption (page 492)
+lmtest::bptest(formula = creature.clean$has_soul ~ 
+                 creature.clean$hair_length)
+```
+
+**H0: The points are evenly distributed around the line (meets assumption)** 
+
+HA: The points are not evenly distributed around the line (not met)
+
+
+
+
+(28) Interpretation of assumption checking (remember to include all assumptions):
+
+
+
+(29) What would you do next?
+
+
+
+(30) Summarize the overall results:
+
+```{r rhoHairBySoul}
+# spearman's rho (page 505)
+cor.test(x = creature.clean$has_soul,
+         y = creature.clean$hair_length,
+         method = "spearman")
+```
+
+
+
+## Research question: Are has soul and rotting flesh related?
+
+(31) H0: 
+
+(32) HA: 
+
+### Exploratory data analysis
+
+```{r graphSoulByFlesh, message = FALSE}
+# Exploring with visual before correlation (page 469)
+creature.clean %>% 
+  ggplot(aes(y = has_soul, x = rotting_flesh)) +
+  geom_point(size = 2, alpha = .6, color = "#DD571C") +
+  geom_smooth(method = "lm", se = FALSE, color = "#9C51B6") +
+  theme_minimal() +
+  labs(x = "Rotting flesh", 
+       y = "Has soul")
+
+```
+
+(33) Interpretation: 
+
+### Assumption checking
+
+```{r normalitySoulByFlesh, message = FALSE}
+# normality assumption (page 486)
+soul.dist <- creature.clean %>% 
+  ggplot(aes(x = has_soul)) +
+  geom_histogram(fill = "#DD571C", alpha = .6) +
+  theme_minimal() +
+  labs(x = "Has soul")
+
+hair.dist <- creature.clean %>% 
+  ggplot(aes(x = rotting_flesh)) +
+  geom_histogram(fill = "#9C51B6", alpha = .6) +
+  theme_minimal() +
+  labs(x = "Rotting flesh")
+
+gridExtra::grid.arrange(soul.dist, hair.dist, ncol = 2)
+```
+
+```{r linearitySoulByFlesh, message = FALSE}
+# Linearity (page 489)
+creature.clean %>% 
+  ggplot(aes(y = rotting_flesh, x = has_soul)) +
+  geom_point(size = 2, alpha = .6, color = "#DD571C") +
+  geom_smooth(method = "lm", se = FALSE, color = "#9C51B6") +
+  geom_smooth(se = FALSE) +
+  theme_minimal() +
+  labs(x = "Has soul", 
+       y = "Rotting flesh")
+```
+
+```{r homoscedasHairBySoul}
+# homoscedasticity assumption (page 492)
+lmtest::bptest(formula = creature.clean$hair_length ~ 
+                 creature.clean$has_soul)
+```
+
+(34) Assumption checking results (include all assumptions):
+
+
+### Correlation analysis or alternative (as appropriate)
+
+```{r}
+# Hair length by has soul
+
+```
+
+(35) Interpretation: 
+
+
+
+(36) Overall results:
+
+
+## Discussion and recommendations
+
+
+

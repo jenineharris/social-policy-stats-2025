@@ -1,0 +1,351 @@
+---
+title: "How many employees?"
+---
+
+In public health, social work, and social policy, we often use a sample as an estimate or representation of a population. The Central Limit Theorem can help to demonstrate why this works. In this activity we will answer the research question, how many employees are in a typical state health department? 
+
+# The situation
+
+You have been asked to examine the workforce in state health departments nationwide. You have the number of full-time employees in all the state health departments (the population of state health departments). 
+
+You have been told there was only enough funding to collect the data on full-time employees once, and in the future you will only have the funding to gather data from 30 health departments. Use the central limit theorem to demonstrate why this sample will be a good representation of the population of state health departments.
+
+Today's workshop is **NOT** something you will do typically, but is a way to build some intuition around why and how inferential statistics work. 
+
+```{r openLibraries}
+# install googlesheets4 package for this workshop
+# NOTE: to use this package, you'll need to be logged into your
+# gmail account
+# if you do not have a gmail account, an alternative data
+# method is available, it just takes some extra typing, let
+# Dr. Harris know when we get to that part
+library(package = "tidyverse")
+library(package = "googlesheets4")
+```
+
+# Your tasks
+
+(1)	Import the csv file containing the number of employees for the 50 health departments.
+
+(2)	Take the mean of the number of employees (variable name is "employees")
+
+```{r importTakeMean}
+# state and number of employees for 50 health departments
+hdemp <- read.csv(file = "http://tinyurl.com/h3ppczv")
+
+# mean for number of employees
+mean(x = hdemp$employees)
+sd(x = hdemp$employees)
+```
+
+```{r employDistGraph}
+# distribution of number of employees
+hdemp %>% 
+  ggplot(aes(x = employees)) +
+  geom_histogram(color = "white")
+# right skewed
+```
+
+Since all the state health departments in the country is the *population* of health departments, this value is the *population mean*. Population values are often written using Greek characters. Write the population mean with the Greek character for mean ( $\mu$ pronounced mu).
+
+$\mu$ = 2215.404
+
+(3)	Use R to randomly select a sample of 30 health departments from the population data. The sample command will choose 30 health departments at random from the data and compute the mean and standard deviation. 
+
+```{r takeOneSample}
+# set seed so it is reproducible
+# pick your own unique seed number and replace 91669 
+# your seed can be any positive whole number
+set.seed(seed = 91669)
+
+# take a sample of 30 health depts 
+sample1 <- sample(x = hdemp$employees, size = 30)
+
+# examine the sample 
+sample1
+```
+
+```{r meanOneSample}
+# find the mean for the sample
+mean(x = sample1)
+```
+
+Take another sample and find the mean:
+
+```{r takeSample2}
+# set seed so it is reproducible
+# pick your own unique seed number, any positive whole number
+set.seed(seed = 4151981)
+
+# take a sample of 30 health depts 
+sample2 <- sample(x = hdemp$employees, size = 30)
+
+# examine the sample 
+sample2
+```
+
+```{r meanSample2}
+# find the mean for the sample
+mean(x = sample2)
+```
+
+Take a third sample and find the mean:
+
+```{r takeSample3}
+# set seed so it is reproducible
+# pick your own unique seed number, any positive whole number
+set.seed(seed = 1141971)
+
+# take a sample of 30 health depts 
+sample3 <- sample(x = hdemp$employees, size = 30)
+
+# examine the sample 
+sample3
+```
+
+```{r meanSample3}
+# find the mean for the sample
+mean(x = sample3)
+
+```
+
+Take a fourth sample and find the mean:
+
+```{r takeSample4}
+# set seed so it is reproducible
+# pick your own unique seed number, any positive whole number
+set.seed(seed = 42)
+
+# take a sample of 30 health depts 
+sample4 <- sample(x = hdemp$employees, size = 30)
+
+# examine the sample 
+sample4
+```
+
+```{r meanSample4}
+# find the mean for the sample
+mean(x = sample4)
+
+```
+
+Take a fifth sample and find the mean:
+
+```{r takeSample5}
+# set seed so it is reproducible
+# pick your own unique seed number, any positive whole numbersam
+set.seed(seed = 2231946)
+
+# take a sample of 30 health depts 
+sample5 <- sample(x = hdemp$employees, size = 30)
+
+# examine the sample 
+sample5
+```
+
+```{r meanSample5}
+# find the mean for the sample
+mean(x = sample5)
+
+```
+
+
+Add the means for your sample1, sample2, sample 3, sample4, and sample5 in the Google doc: https://docs.google.com/spreadsheets/d/1Ueh8jXr05stnM4TBjbJ1HrmGYTlx2izXXkrTT6FD2os/edit?usp=sharing 
+
+(4)	Enter all the means from the class into a vector and name it sampmeans. Find the mean and standard deviation for the distribution of sample means, also known as the sampling distribution. Make a histogram of the sample means.
+
+```{r}
+# bring data in from google sheet
+samplemeans <- read_sheet("https://docs.google.com/spreadsheets/d/1Ueh8jXr05stnM4TBjbJ1HrmGYTlx2izXXkrTT6FD2os/edit?usp=sharing")
+
+# merge all variables into one long vector of values
+sampmeans <- c(samplemeans$Sample1,
+               samplemeans$Sample2,
+               samplemeans$Sample3,
+               samplemeans$Sample4,
+               samplemeans$Sample5)
+
+# check to make sure your data look ok
+summary(object = sampmeans)
+
+# compute mean and sd of the vector
+mean(x = sampmeans)
+sd(x = sampmeans)
+
+```
+
+```{r}
+# IF THE READ_SHEET CODE DOES NOT WORK, REPLACE THE EMAIL
+# ON THE LAST LINE OF THIS CODE CHUNK WITH YOUR GMAIL ADDRESS AND RUN THIS, THEN
+# RERUN THE READ_SHEET CODE ABOVE
+# Set authentication token to be stored in a folder called \.secrets``
+options(gargle_oauth_cache = ".secrets")
+
+# Authenticate manually
+gs4_auth()
+
+# If successful, the previous step stores a token file.
+# Check that a file has been created with:
+list.files(".secrets/")
+
+# Check that the non-interactive authentication works by first deauthorizing:
+gs4_deauth()
+
+# Authenticate using token. If no browser opens, the authentication works.
+gs4_auth(cache = ".secrets", email = "email@gmail.com")
+```
+
+```{r}
+# 3RD OPTION
+# alternate for no gmail or gmail option not working
+# enter the values from the Google doc directly into a vector
+# uncomment the next line and run to import
+# sampmeans <- c()
+```
+
+Sampling distribution mean = 
+
+Sampling distribution standard deviation = 
+
+```{r}
+# plot a histogram of the sample means
+samp.means <- as.data.frame(sampmeans)
+samp.means %>% 
+  ggplot(aes(x = sampmeans)) + 
+  geom_histogram(color = "white")
+```
+
+
+(5)	How close is the mean of the sampling distribution to the population mean ( $\mu$ )?
+
+The mean of the sampling distribution is _______ and the mean of the population is 2215.404. The two means are _______ apart.
+
+
+(6)	Count how many of the sample means from the class are within 1 standard deviation of the sampling distribution mean. Count how many are within 2 standard deviations. What percentage are within 1 and 2 standard deviations of the sampling distribution mean?
+
+mean + 1 standard deviation =  +  = 
+mean - 1 standard deviation =  -  = 
+
+number of means within 1 standard deviation = 
+percentage of means within 1 standard deviation = 
+
+
+mean + 2 standard deviations =  +  = 
+mean - 2 standard deviations =  -  = 
+
+number of means within 2 standard deviations = 
+percentage of means within 2 standard deviations = 
+
+
+(7)	For a perfectly normally distributed variable, 68% of observations are within 1 standard deviation of the mean and 95% of observations are within 2 standard deviations of the mean. How do the percentages from #6 compare to what these percentages would be for a perfectly normally distributed variable?
+
+
+
+# The BIG idea:
+
+- It is often difficult or impossible to measure a population 
+- If you take multiple samples from the population, the mean of sample means will be close to the population mean  (mean of sample means = population mean) 
+- The sample means will also tend to be normally distributed, even when the original variable is not  
+- Because they are normally distributed, 68% of sample means will be within one standard deviation of the mean of sample means and 95% will be within two standard deviations of the mean of sample means (remember, mean of sample means is a good estimate of the population mean) 
+- Therefore, any one sample, if collected carefully, has a high probability of representing what is going on in the population (the single sample mean is likely not too far from the sampling distribution mean, which is a good estimate of the population mean)
+
+This is called The Central Limit Theorem. The Central Limit Theorem allows us to estimate population parameters using sample statistics.
+
+THIS ACTIVITY IS NOT SOMETHING YOU WILL BE DOING IN YOUR STATISTICAL LIFE, IT IS JUST TO DEMONSTRATE THE MAIN DATA PROPERTY THAT MANY INFERENTIAL STATISTICAL TESTS RELY ON.
+
+# Using the Central Limit Theorem
+
+When you take a lot of large samples, the resulting sampling distribution will look like a normal distribution _where the mean is nearly the same as the population mean_. This is the _Central Limit Theorem_ and even holds true for variables that are not normally distributed to begin with. 
+
+Another characteristic of sampling distributions is that the standard deviation of a sampling distribution can be used to find the population standard deviation since:
+
+std-dev-of-samp-dist = sigma / square-root-of-n
+
+Where sigma is the population standard deviation and n is the size of the samples used to make the sampling distribution.
+
+Since we don't usually have the population standard deviation and we can't usually take lots of samples and get the standard deviation of a sampling distribution, an approximation to this value is called the _standard error_ and is computed:
+
+s / square root of n
+
+\[
+\frac{s}{\sqrt{n}}
+\]
+
+where s is the sample standard deviation of a single sample and n is the sample size for the same sample. This value estimates the sampling distribution standard deviation. 
+
+We can compute the standard error for one of the samples of 30 health departments we took; pick a sample and find the mean and standard deviation:
+
+```{r}
+# mean of sample 
+mean(x = sample2)
+
+# se of sample  
+sd(x = sample2)/sqrt(x = 30)
+```
+
+(8) Since we were able to compute a sampling distribution standard deviation this time, compare the standard error of your sample to the standard deviation of the sampling distribution (see #4 above). How close are they?
+
+
+
+# Estimating intervals
+
+Alrighty, let's link some ideas together. We know: 
+
+* how to compute the mean of a variable in a sample 
+* how a sample mean is likely to be within one or two standard dev of the population mean
+* how to compute the standard error of a sample to estimate the standard deviation of the sampling distribution
+
+We can use these three things to create an *interval* around the mean that quantifies the uncertainty of the estimate from a sample and gives us a *better idea about where the true population mean lies*. So, when you got a mean value and standard error for number of employees from a sample, you could use these to create a range of values where the true population mean for number of employees likely lies.
+
+```{r}
+# mean of sample 3
+mean.samp2 <- mean(x = sample2)
+mean.samp2
+
+# standard error sample 3
+err.samp2 <- sd(x = sample2)/sqrt(x = 30)
+err.samp2
+```
+
+Choose what sort of interval you would like. Most of the time you will see 95% intervals or *95% confidence intervals* which show the range where the population value is 95 times if the study were replicated 100 times. You could also choose a larger interval like a *68% confidence interval* or a smaller interval like a *99% confidence interval*. We will start with 95%.
+
+....so....
+
+* 95% of values lie within about 2 standard deviations of the mean (specifically, 1.96) 
+* the standard error of a sample is a good estimate of the standard deviation in the sampling distribution  
+* so most sample means will fall within 1.96 standard errors of the mean of the sample means, and the mean of the sample means is very close to the population mean 
+
+Compute the 95% confidence interval for sample 2.
+
+```{r} 
+# compute upper boundary of 95% confidence interval
+mean.samp2 + 1.96 * err.samp2
+
+# compute lower boundary of 95% confidence interval 
+mean.samp2 - 1.96 * err.samp2
+```
+
+(8) The 95% confidence interval for the mean number of health department employees is the lower to upper boundary. Write your confidence interval here: 
+
+
+
+
+(9) Does your confidence interval contain the population mean you computed at the beginning of this exercise? 
+
+
+
+
+Note that the confidence interval formulas are often written:
+
+mean + z * standard error
+
+mean - z * standard error
+
+(10) Write an interpretation of the mean and confidence interval for sample 2: 
+
+The mean number of employees in a state health department in our sample was _______ (se = ______; sd = ______). Based on our sample, the likely population mean number of employees in a state health department is between _______ - ________ (m = _______; 95% CI: ________ - ________).
+
+
+NOTE ON SMALL SAMPLES: When sample sizes are small, there is more uncertainty in our data. In the case of very small samples (<30) use the t-distribution instead of the normal distribution to compute confidence intervals that account for this added uncertainty. Trade the 1.96 for the value of t that corresponds to the probability level you are interested in. Values of t can be found online in tables of t-statistics.
+
+## The End

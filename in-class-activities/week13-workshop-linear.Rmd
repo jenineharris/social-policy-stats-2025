@@ -1,0 +1,170 @@
+---
+title: "Predicting risky health behavior"
+author: "Jenine Harris"
+output: html_document
+---
+
+## Project purpose
+
+The purpose of this project is to determine whether sex, having friends who smoke, and having a parent who smokes can help to predict the risky behavior scores for college students. The sample is from a survey of 405 students on the campus of the University of Kentucky just after a smoking ban was passed on campus in 2009.
+
+The sex and parental smoking variables were measured in categories, with male and female sex, and yes and no for having a parent who smokes. The risky behavior variable was measured as a continuous variable where lower was less risky health behaviors and higher was more risky health behaviors. Having friends who smoke was measured as a percentage from 0 to 100 where participants estimated what percent of their friends smoke. 
+
+```{r dataPackages, echo=FALSE, include = FALSE, message=FALSE, warning = FALSE}
+# bring in data
+library(foreign)
+uky <- read.spss(file = "https://tinyurl.com/ydyns6e6", to.data.frame = T)
+summary(object = uky)
+
+# open libraries
+library(package = "tidyverse")
+library(package = "table1")
+library(package = "lmtest")
+```
+
+
+## Exploratory data analysis
+
+
+```{r selectVars, echo=FALSE, include = FALSE, message=FALSE, warning = FALSE}
+# select variables of interest and clean data
+uky.small <- uky %>% 
+  select(friends_smoke, gender, parent, risky_behavior)  
+```
+
+```{r histContinuousVars, include = FALSE}
+# check the distribution of num friends who smoke to see if normal
+hist(uky.small$friends_smoke)
+# not normal, use median/IQR for descriptive stats
+# check the distribution of risky_behavior to see if normal
+hist(uky.small$risky_behavior)
+# relatively normal
+```
+
+#### Table 1. Characteristics of 405 University of Kentucky students surveyed about health behavior.
+
+```{r table1, echo=FALSE, message=FALSE, warning = FALSE}
+# risky behavior is close to normal but friends smoke is skewed right so
+# they need 2 different sets of descriptive stats
+# use a custom function from the help documentation at:
+# https://cran.r-project.org/web/packages/table1/vignettes/table1-examples.html
+# change the variables
+rndr <- function(x, name, ...) {
+    if (!is.numeric(x)) return(render.categorical.default(x))
+    what <- switch(name,
+        friends_smoke = "Median (Q1, Q3)", # choose median and IQR for skewed
+        risky_behavior  = "Mean (SD)")  # choose mean SD for normal-ish
+    parse.abbrev.render.code(c("", what))(x)
+}
+
+
+# Make a table of descriptive stats
+# use render = rndr (the name of the function you wrote above)
+# to make different variables display different stats
+table1(~ ., data = uky.small,
+       render = rndr)
+```
+
+Table 1 shows characteristics of the sample of 405 students, which included 189 female students (46.7%) and 296 students whose parents do not smoke (73.1%). The median percentage of friends who smoke was 35% (IQR: 15--55). The mean risky behavior score was 9.80 (sd = 3.31).
+
+```{r bivariateTests, echo=FALSE, include = FALSE, message=FALSE, warning = FALSE}
+# Examine relationships between each predictor and the outcome
+
+# Spearman correlation for friends_smoke & risky_behavior since smoke is nonnormal (page 504)
+cor.test(x = uky$friends_smoke,
+         y = uky$risky_behavior,
+         method = "spearman")
+
+# t-tests since risky_behavior is normal dist (page 347)
+t.test(formula = uky.small$risky_behavior ~ uky.small$gender)
+t.test(formula = uky.small$risky_behavior ~ uky.small$parent)
+```
+
+Analyses of the relationship between risky behavior and the three predictors showed there was a weak, positive, and statistically significant correlation between the percentage of friends who smoke and risky health behavior (rho = .24; p < .05) for college students (Figure 1).
+
+#### Figure 1. Examining the relationship between percent of friends who smoke and risky behavior in a sample of 405 college students at the University of Kentucky. 
+
+```{r graphRiskyByParent, echo=FALSE, message=FALSE, warning = FALSE}
+# risky behavior & parent smoker (see page 346)
+uky.small %>% 
+  ggplot(aes(y = risky_behavior, x = friends_smoke)) +
+  geom_point(color = "dodgerblue2") +
+  theme_minimal() +
+  labs(y = "Risky health behavior score (higher is more risky)",
+       x = "Percent of friends who smoke")  
+```
+
+There was a statistically significant relationship between gender and risky behavior (t = -4.74; p < .05) with males having a statistically significantly higher mean risky behavior score (m = 10.51) compared to females (m = 8.98). There was also a statistically significant relationship between having a parent who smokes and risky health behavior (t = -2.22; p = .03) with participant whose parents smoke having a significantly higher mean risky behavior score (m = 10.37) compared to participants whose parents do not smoke (m = 9.59). Figures 2 and 3 show these relationships visually.
+
+#### Figure 2. Examining the relationship between gender and risky behavior in a sample of 405 college students at the University of Kentucky. 
+
+```{r graphRiskyByGender, echo=FALSE, message=FALSE, warning = FALSE}
+# risky behavior & gender (see page 541)
+uky.small %>% 
+  ggplot(aes(y = risky_behavior, x = gender, fill = gender)) +
+  geom_violin(aes(color = gender), fill = "white", alpha = .8) +
+  geom_boxplot(aes(fill = gender), alpha = .3) +
+  geom_jitter(aes(color = gender), alpha = .4) +
+  theme_minimal() +
+  labs(y = "Risky health behavior score (higher is more risky)",
+       x = "Participant sex") +
+  scale_fill_brewer(palette = 'Paired', guide = FALSE) +
+  scale_color_brewer(palette = 'Paired', guide = FALSE) +
+  coord_flip() 
+```
+
+#### Figure 3. Examining the relationship between parents who smoke and risky behavior in a sample of 405 college students at the University of Kentucky. 
+
+```{r graphRiskyByParent2, echo=FALSE, message=FALSE, warning = FALSE}
+# risky behavior & parent smoker (see page 541)
+uky.small %>% 
+  ggplot(aes(y = risky_behavior, x = parent, fill = parent)) +
+  geom_violin(aes(color = parent), fill = "white", alpha = .8) +
+  geom_boxplot(aes(fill = parent), alpha = .3) +
+  geom_jitter(aes(color = parent), alpha = .4) +
+  theme_minimal() +
+  labs(y = "Risky health behavior score (higher is more risky)",
+       x = "Has a parent smoker") +
+  scale_fill_brewer(palette = 'Paired', guide = FALSE) +
+  scale_color_brewer(palette = 'Paired', guide = FALSE) +
+  coord_flip() 
+```
+
+## Predicting risky health behavior
+
+```{r echo=FALSE, include = FALSE, message=FALSE, warning = FALSE}
+# simple linear regression 
+riskyByFriends <- lm(risky_behavior ~ gender + parent + friends_smoke, data = uky.small, 
+                     na.action = na.exclude)
+summary(riskyByFriends)
+
+# assumption checking
+# normality of residuals
+uky.small$residuals <- residuals(riskyByFriends)
+hist(uky.small$residuals)
+# MET
+
+# linearity graph between residuals and predicted values
+# get predicted and residuals
+uky.small$predict <- predict(riskyByFriends)
+uky.small$residuals <- residuals(riskyByFriends)
+# make graph
+ggplot(data = uky.small, aes(x = predict, y = residuals)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  geom_smooth(se = FALSE, color = "deeppink")
+# MET
+
+# homoscedasticity
+bptest(riskyByFriends)
+# MET
+
+
+```
+
+A linear regression model including percent of friends who smoke, sex, and having a parent as a smoker as predictors of risky health behavior was statistically significant [F(3, 401) = 17.74; p < .05]. The model explained 9.3% of the variation in risky behavior (adjusted $R^2$ = .093). 
+
+Having friends who smoke was a statistically significant predictor of risky behavior (b = .02; t = 3.86; p = .0001). For every one percent increase in the percent of friends who smoke, the risky behavior score increases by .02. Sex was also a statistically significant predictor of risky behavior (t = 4.40; p < .05). The behavior score was 1.39 higher for males than for the reference group of females (b = 1.39). There was no statistically significant influence of parent smoking on risky behavior (t = 1.57; p = .12).
+
+To reduce risky health behaviors for college students, interventions might be aimed at male students and students who smoke. Reducing the percentage of people who smoke on college campuses might reduce other risky behaviors and intervening with males could help with the higher risky behavior score for that group.
+
