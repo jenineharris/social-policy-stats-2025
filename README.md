@@ -43,8 +43,10 @@ Download the participant files and save them together in the same folder on your
 <ul>
 <li> Click on the green Code button toward the top of this GitHub page
 <li> Choose Download ZIP
-<li> Unzip the downloaded zip file and save all the files in a single folder on your computer somewhere you can find it 
+<li> Unzip the downloaded zip file and save all the files in a single folder on your computer **somewhere you can find it**
 </ul>
+
+R cannot read data files from Downloads folders, so please put the folder of course materials somewhere outside of the Downloads folder.
 
 ### R Resources
 
