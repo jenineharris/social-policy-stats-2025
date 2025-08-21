@@ -63,7 +63,6 @@ my_life_df %>%
 # But, let's try it!
 # The waffle package can only handle 8 categories maximum, 
 # so if you have more eras than that, you can leave some out or combine them. 
-# I combined the places I lived in more than one time.
 
 # open the waffle package (install first through Tools menu)
 library(package = "waffle")
@@ -81,7 +80,7 @@ names(months) <- c("Eugene, Oregon, USA",
 # make the plot
 waffle(months / 12, rows = 5,
        legend_pos = "bottom")
-# once it runs, try replacing the 10 and 6 with different 
+# once it runs, try replacing the 12 and 5 with different 
 # numbers and see what happens
 # the 12 divides the number of months by 12 so each square is worth 12
 # months, the 5 is the number of rows in your waffle 
